@@ -4,6 +4,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 
+# 金額をカンマ区切りにする関数
+def format_currency(amount):
+    return "{:,}".format(int(amount))
+
 # 銘柄データを追加
 stock_data = {
     "証券番号": [3097, 1952, 8876],
@@ -22,7 +26,7 @@ company_names = {
     8876: "リログループ"
 }
 
-st.title("株式損益確認")
+st.title("株式損益確認ページ")
 
 # 購入金額の総計と損益額の初期化
 total_purchase_amount = 0
@@ -59,9 +63,9 @@ for i, row in df.iterrows():
 
 # 購入金額の総計と現在の収益、合計を表示
 st.header("現在の投資状況")
-st.write(f"購入金額の総計: ¥{total_purchase_amount:.2f}")
-st.write(f"現在の収益額: ¥{total_profit_loss:.2f}")
-st.write(f"購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):.2f}")
+st.write(f"購入金額の総計: ¥{format_currency(total_purchase_amount)}")
+st.write(f"現在の収益額: ¥{format_currency(total_profit_loss)}")
+st.write(f"購入金額と収益の合計: ¥{format_currency(total_purchase_amount + total_profit_loss)}")
 st.markdown("---")
 
 # 画面を横並びに3分割
@@ -93,31 +97,31 @@ for i, row in df.iterrows():
         if i == 0:
             with col1:
                 st.subheader(f"証券番号: {row['証券番号']} ({company_name})")
-                st.write(f"購入価格: ¥{purchase_price}")
-                st.write(f"現在価格: ¥{last_price}")
-                st.write(f"差額: ¥{price_diff:.2f}")
-                st.write(f"評価額: ¥{total_eval:.2f}")
-                st.write(f"損益: ¥{profit_loss:.2f}")
+                st.write(f"購入価格: ¥{format_currency(purchase_price)}")
+                st.write(f"現在価格: ¥{format_currency(last_price)}")
+                st.write(f"差額: ¥{format_currency(price_diff)}")
+                st.write(f"評価額: ¥{format_currency(total_eval)}")
+                st.write(f"損益: ¥{format_currency(profit_loss)}")
                 fig = go.Figure(data=[go.Candlestick(x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close'])])
                 st.plotly_chart(fig)
         elif i == 1:
             with col2:
                 st.subheader(f"証券番号: {row['証券番号']} ({company_name})")
-                st.write(f"購入価格: ¥{purchase_price}")
-                st.write(f"現在価格: ¥{last_price}")
-                st.write(f"差額: ¥{price_diff:.2f}")
-                st.write(f"評価額: ¥{total_eval:.2f}")
-                st.write(f"損益: ¥{profit_loss:.2f}")
+                st.write(f"購入価格: ¥{format_currency(purchase_price)}")
+                st.write(f"現在価格: ¥{format_currency(last_price)}")
+                st.write(f"差額: ¥{format_currency(price_diff)}")
+                st.write(f"評価額: ¥{format_currency(total_eval)}")
+                st.write(f"損益: ¥{format_currency(profit_loss)}")
                 fig = go.Figure(data=[go.Candlestick(x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close'])])
                 st.plotly_chart(fig)
         else:
             with col3:
                 st.subheader(f"証券番号: {row['証券番号']} ({company_name})")
-                st.write(f"購入価格: ¥{purchase_price}")
-                st.write(f"現在価格: ¥{last_price}")
-                st.write(f"差額: ¥{price_diff:.2f}")
-                st.write(f"評価額: ¥{total_eval:.2f}")
-                st.write(f"損益: ¥{profit_loss:.2f}")
+                st.write(f"購入価格: ¥{format_currency(purchase_price)}")
+                st.write(f"現在価格: ¥{format_currency(last_price)}")
+                st.write(f"差額: ¥{format_currency(price_diff)}")
+                st.write(f"評価額: ¥{format_currency(total_eval)}")
+                st.write(f"損益: ¥{format_currency(profit_loss)}")
                 fig = go.Figure(data=[go.Candlestick(x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close'])])
                 st.plotly_chart(fig)
 
