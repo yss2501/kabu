@@ -22,11 +22,47 @@ company_names = {
     8876: "リログループ"
 }
 
-st.title("株式損益確認ページ")
+st.title("株式損益確認")
 
 # 購入金額の総計と損益額の初期化
 total_purchase_amount = 0
 total_profit_loss = 0
+
+# 各銘柄の購入金額と収益を計算
+df["購入金額"] = df["購入価格"] * df["購入数"]
+df["現在価格"] = 0.0
+df["損益"] = 0.0
+
+for i, row in df.iterrows():
+    symbol = row["symbol"]
+    purchase_price = row["購入価格"]
+    quantity = row["購入数"]
+
+    ticker = Ticker(symbol)
+
+    try:
+        # 株価情報取得
+        last_price = ticker.price[symbol]['regularMarketPrice']
+        price_diff = last_price - purchase_price
+        profit_loss = price_diff * quantity
+
+        # DataFrameに現在価格と損益を格納
+        df.loc[i, "現在価格"] = last_price
+        df.loc[i, "損益"] = profit_loss
+
+        # 購入金額と損益額の累積計算
+        total_purchase_amount += purchase_price * quantity
+        total_profit_loss += profit_loss
+
+    except Exception as e:
+        st.error(f"{symbol} のデータ取得に失敗しました: {e}")
+
+# 購入金額の総計と現在の収益、合計を表示
+st.header("現在の投資状況")
+st.write(f"購入金額の総計: ¥{total_purchase_amount:.2f}")
+st.write(f"現在の収益額: ¥{total_profit_loss:.2f}")
+st.write(f"購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):.2f}")
+st.markdown("---")
 
 # 画面を横並びに3分割
 col1, col2, col3 = st.columns(3)
@@ -35,21 +71,15 @@ col1, col2, col3 = st.columns(3)
 for i, row in df.iterrows():
     symbol = row["symbol"]
     purchase_price = row["購入価格"]
+    last_price = row["現在価格"]
+    price_diff = last_price - purchase_price
+    total_eval = last_price * row["購入数"]
+    profit_loss = row["損益"]
     quantity = row["購入数"]
 
     ticker = Ticker(symbol)
-    
-    try:
-        # 株価情報取得
-        last_price = ticker.price[symbol]['regularMarketPrice']
-        price_diff = last_price - purchase_price
-        total_eval = last_price * quantity
-        profit_loss = price_diff * quantity
 
-        # 購入金額と損益額の計算
-        total_purchase_amount += purchase_price * quantity
-        total_profit_loss += profit_loss
-        
+    try:
         # 会社名取得
         company_name = company_names.get(row["証券番号"], "会社名不明")
 
@@ -93,7 +123,3 @@ for i, row in df.iterrows():
 
     except Exception as e:
         st.error(f"{symbol} のデータ取得に失敗しました: {e}")
-
-# 購入金額の総計と損益額を表示
-st.header(f"購入金額の総計: ¥{total_purchase_amount:.2f}")
-st.header(f"損益額: ¥{total_profit_loss:.2f}")
