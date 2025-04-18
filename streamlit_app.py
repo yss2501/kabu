@@ -58,11 +58,9 @@ for i, row in df.iterrows():
         st.error(f"{symbol} のデータ取得に失敗しました: {e}")
 
 # 購入金額の総計と現在の収益、合計を表示
-st.header("現在の投資状況")
-st.write(f"購入金額の総計: ¥{total_purchase_amount:.0f}")
-st.write(f"現在の収益額: ¥{total_profit_loss:.0f}")
-st.write(f"購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):.0f}")
-st.markdown("---")
+st.markdown(f"<h2>購入金額の総計: ¥{total_purchase_amount:,.0f}</h2>", unsafe_allow_html=True)
+st.markdown(f"<h2>現在の収益額: ¥{total_profit_loss:,.0f}</h2>", unsafe_allow_html=True)
+st.markdown(f"<h2>購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):,.0f}</h2>", unsafe_allow_html=True)
 
 # 画面を横並びに3分割
 col1, col2, col3 = st.columns(3)
