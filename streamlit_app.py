@@ -4,10 +4,21 @@ import pandas as pd
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 
-# ページの設定
 st.set_page_config(layout="wide")
+st.title("株式損益確認")
 
-# データ
+# 現在のテーマ判定（light / dark）
+theme_base = st.get_option("theme.base")
+is_dark = theme_base == "dark"
+
+# 色設定（テーマごとに変更）
+color_bg = "#1e1e1e" if is_dark else "#F0F8FF"
+color_text = "#ffffff" if is_dark else "#000000"
+color_highlight1 = "#00FF7F" if is_dark else "#2E8B57"
+color_highlight2 = "#1E90FF"
+color_highlight3 = "#FFD700"
+
+# 株データ
 stock_data = {
     "証券番号": [3097, 1952, 8876],
     "購入価格": [3230.0, 1680, 1771],
@@ -22,9 +33,7 @@ company_names = {
     8876: "リログループ"
 }
 
-st.title("株式損益確認")
-
-# 合計計算
+# 計算準備
 df["購入金額"] = df["購入価格"] * df["購入数"]
 df["現在価格"] = 0.0
 df["損益"] = 0.0
@@ -32,6 +41,7 @@ df["損益"] = 0.0
 total_purchase_amount = 0
 total_profit_loss = 0
 
+# 株価取得
 for i, row in df.iterrows():
     symbol = row["symbol"]
     purchase_price = row["購入価格"]
@@ -40,28 +50,27 @@ for i, row in df.iterrows():
     ticker = Ticker(symbol)
     try:
         last_price = ticker.price[symbol]['regularMarketPrice']
-        price_diff = last_price - purchase_price
-        profit_loss = price_diff * quantity
+        profit_loss = (last_price - purchase_price) * quantity
 
         df.loc[i, "現在価格"] = last_price
         df.loc[i, "損益"] = profit_loss
 
         total_purchase_amount += purchase_price * quantity
         total_profit_loss += profit_loss
+
     except Exception as e:
         st.error(f"{symbol} のデータ取得に失敗しました: {e}")
 
-# --- 表示エリア ---
-
+# 合計表示
 st.header("現在の投資状況")
 
-# スタイル付き表示
-st.markdown(f"<div style='font-size:28px; color:#2E8B57;'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:28px; color:#1E90FF;'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:28px; color:#DAA520;'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='font-size:26px; color:{color_highlight1};'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='font-size:26px; color:{color_highlight3};'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>", unsafe_allow_html=True)
+
 st.markdown("---")
 
-# 銘柄表示をレスポンシブに
+# レスポンシブ表示
 cols = st.columns(len(df))
 
 for i, row in df.iterrows():
@@ -82,11 +91,10 @@ for i, row in df.iterrows():
         hist = ticker.history(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), interval='1d')
         hist = hist.reset_index()
 
-        # 表示
         with cols[i]:
             st.markdown(
                 f"""
-                <div style='background-color:#F0F8FF; padding:15px; border-radius:12px;'>
+                <div style='background-color:{color_bg}; color:{color_text}; padding:15px; border-radius:12px;'>
                     <h3>{company_name}（{row['証券番号']}）</h3>
                     <p style='font-size:18px;'>購入価格: ¥{purchase_price:,.0f}</p>
                     <p style='font-size:18px;'>現在価格: ¥{last_price:,.0f}</p>
@@ -100,6 +108,7 @@ for i, row in df.iterrows():
             fig = go.Figure(data=[go.Candlestick(
                 x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close']
             )])
+            fig.update_layout(paper_bgcolor=color_bg, plot_bgcolor=color_bg, font_color=color_text)
             st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
