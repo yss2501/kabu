@@ -59,9 +59,9 @@ for i, row in df.iterrows():
 
 # 購入金額の総計と現在の収益、合計を表示
 st.header("現在の投資状況")
-st.write(f"購入金額の総計: ¥{total_purchase_amount:.f}")
-st.write(f"現在の収益額: ¥{total_profit_loss:.f}")
-st.write(f"購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):.f}")
+st.write(f"購入金額の総計: ¥{total_purchase_amount:.0f}")
+st.write(f"現在の収益額: ¥{total_profit_loss:.0f}")
+st.write(f"購入金額と収益の合計: ¥{(total_purchase_amount + total_profit_loss):.0f}")
 st.markdown("---")
 
 # 画面を横並びに3分割
