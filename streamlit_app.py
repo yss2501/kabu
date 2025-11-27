@@ -18,21 +18,21 @@ color_highlight1 = "#00FF7F" if is_dark else "#2E8B57"
 color_highlight2 = "#1E90FF"
 color_highlight3 = "#FFD700"
 
-# ★ 株データにニトリホールディングス（9843）追加
+# ★ ニトリ（9843）を先頭にした株データ
 stock_data = {
-    "証券番号": [3097, 1952, 8876, 9843],
-    "購入価格": [3230.0, 1680, 1771, 2727],
-    "購入数": [100, 300, 100, 300]
+    "証券番号": [9843, 3097, 1952, 8876],
+    "購入価格": [2727, 3230.0, 1680, 1771],
+    "購入数": [300, 100, 300, 100]
 }
 df = pd.DataFrame(stock_data)
 df["symbol"] = df["証券番号"].astype(str) + ".T"
 
-# ★ 会社名辞書にニトリ追加
+# 会社名辞書（順番は問わない）
 company_names = {
+    9843: "ニトリホールディングス",
     3097: "物語コーポレーション",
     1952: "新日本空調",
-    8876: "リログループ",
-    9843: "ニトリホールディングス"
+    8876: "リログループ"
 }
 
 # 計算準備
@@ -66,15 +66,22 @@ for i, row in df.iterrows():
 # 合計表示
 st.header("現在の投資状況")
 
-st.markdown(f"<div style='font-size:26px; color:{color_highlight1};'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:26px; color:{color_highlight3};'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='font-size:26px; color:{color_highlight1};'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>",
+    unsafe_allow_html=True
+)
+st.markdown(
+    f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>",
+    unsafe_allow_html=True
+)
+st.markdown(
+    f"<div style='font-size:26px; color:{color_highlight3};'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>",
+    unsafe_allow_html=True
+)
 
 st.markdown("---")
 
-# レスポンシブ表示
-cols = st.columns(len(df))
-
+# ★ 銘柄ごとにアコーディオン表示（expander）
 for i, row in df.iterrows():
     symbol = row["symbol"]
     company_name = company_names.get(row["証券番号"], "会社名不明")
@@ -86,17 +93,23 @@ for i, row in df.iterrows():
     profit_loss = row["損益"]
 
     ticker = Ticker(symbol)
+
     try:
+        # 株価推移取得（過去10日）
         end = datetime.now()
         start = end - timedelta(days=10)
-        hist = ticker.history(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), interval='1d')
+        hist = ticker.history(
+            start=start.strftime('%Y-%m-%d'),
+            end=end.strftime('%Y-%m-%d'),
+            interval='1d'
+        )
         hist = hist.reset_index()
 
-        with cols[i]:
+        with st.expander(f"{company_name}（{row['証券番号']}）", expanded=False):
+            # 基本情報表示
             st.markdown(
                 f"""
                 <div style='background-color:{color_bg}; color:{color_text}; padding:15px; border-radius:12px;'>
-                    <h3>{company_name}（{row['証券番号']}）</h3>
                     <p style='font-size:18px;'>購入価格: ¥{purchase_price:,.0f}</p>
                     <p style='font-size:18px;'>現在価格: ¥{last_price:,.0f}</p>
                     <p style='font-size:18px;'>差額: ¥{price_diff:,.2f}</p>
@@ -107,10 +120,19 @@ for i, row in df.iterrows():
                 unsafe_allow_html=True
             )
 
+            # ローソク足チャート
             fig = go.Figure(data=[go.Candlestick(
-                x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close']
+                x=hist['date'],
+                open=hist['open'],
+                high=hist['high'],
+                low=hist['low'],
+                close=hist['close']
             )])
-            fig.update_layout(paper_bgcolor=color_bg, plot_bgcolor=color_bg, font_color=color_text)
+            fig.update_layout(
+                paper_bgcolor=color_bg,
+                plot_bgcolor=color_bg,
+                font_color=color_text,
+            )
             st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
