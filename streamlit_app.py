@@ -67,7 +67,7 @@ for i, row in df.iterrows():
 st.header("現在の投資状況")
 
 st.markdown(f"<div style='font-size:26px; color:{color_highlight1};'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_env=True)
+st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_html=True)
 st.markdown(f"<div style='font-size:26px; color:{color_highlight3};'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
