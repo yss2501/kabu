@@ -18,19 +18,21 @@ color_highlight1 = "#00FF7F" if is_dark else "#2E8B57"
 color_highlight2 = "#1E90FF"
 color_highlight3 = "#FFD700"
 
-# 株データ
+# ★ 株データにニトリホールディングス（9843）追加
 stock_data = {
-    "証券番号": [3097, 1952, 8876],
-    "購入価格": [3230.0, 1680, 1771],
-    "購入数": [100, 300, 100]
+    "証券番号": [3097, 1952, 8876, 9843],
+    "購入価格": [3230.0, 1680, 1771, 2727],
+    "購入数": [100, 300, 100, 300]
 }
 df = pd.DataFrame(stock_data)
 df["symbol"] = df["証券番号"].astype(str) + ".T"
 
+# ★ 会社名辞書にニトリ追加
 company_names = {
     3097: "物語コーポレーション",
     1952: "新日本空調",
-    8876: "リログループ"
+    8876: "リログループ",
+    9843: "ニトリホールディングス"
 }
 
 # 計算準備
@@ -65,7 +67,7 @@ for i, row in df.iterrows():
 st.header("現在の投資状況")
 
 st.markdown(f"<div style='font-size:26px; color:{color_highlight1};'>購入金額の総計: ¥{total_purchase_amount:,.0f}</div>", unsafe_allow_html=True)
-st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='font-size:26px; color:{color_highlight2};'>現在の収益額: ¥{total_profit_loss:,.0f}</div>", unsafe_allow_env=True)
 st.markdown(f"<div style='font-size:26px; color:{color_highlight3};'>総評価額: ¥{(total_purchase_amount + total_profit_loss):,.0f}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
@@ -85,7 +87,6 @@ for i, row in df.iterrows():
 
     ticker = Ticker(symbol)
     try:
-        # 株価推移取得
         end = datetime.now()
         start = end - timedelta(days=10)
         hist = ticker.history(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), interval='1d')
@@ -105,6 +106,7 @@ for i, row in df.iterrows():
                 """,
                 unsafe_allow_html=True
             )
+
             fig = go.Figure(data=[go.Candlestick(
                 x=hist['date'], open=hist['open'], high=hist['high'], low=hist['low'], close=hist['close']
             )])
